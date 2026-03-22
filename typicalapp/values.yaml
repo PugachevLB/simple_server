@@ -147,22 +147,48 @@ volumes: #[]
   #   secret:
   #     secretName: mysecret
   #     optional: false
-  - name: logs-cm-volume
+  - name: logs
     configMap:
-      name: some_file.txt
+      name: logs-vm-cm
       optional: false
+  - name: configs
+    configMap:
+      name: configs-vm-cm
+      optional: false
+
 
 # Additional volumeMounts on the output Deployment definition.
 volumeMounts: #[]
   # - name: foo
   #   mountPath: "/etc/foo"
   #   readOnly: true
-  - name: logs-cm-volume
-    mountPath: "/var/logs"
+  - name: logs
+    mountPath: "/var/log"
     readOnly: false
+  - name: configs
+    mountPath: "/etc/app"
+    readOnly: true
 
 nodeSelector: {}
 
 tolerations: []
 
 affinity: {}
+
+configMaps: #[]
+  - name: logs-vm-cm
+    data:
+      some_file_1st.txt: |-
+        [some_data]
+        key1 = value1
+        key2 = value2
+      some_file_2nd.txt: |-
+        [some_data]
+        key1 = value1
+        key2 = value2
+  - name: configs-vm-cm
+    data:
+      some_file_3rd.txt: |-
+        [some_data]
+        key1 = value1
+        key2 = value2
