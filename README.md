@@ -1,6 +1,6 @@
 # simple_server
 
-helm upgrade --install myapp ./typicalapp -f typicalapp/values.yaml --kube-apiserver https://172.16.0.25:16443 --namespace default --atomic --timeout 3m
+helm upgrade --install myapp ./typicalapp -f typicalapp/values.yaml --kube-apiserver https://172.16.0.25:16443 --namespace default --rollback-on-failure --timeout 3m
 
 helm ls --kube-apiserver https://172.16.0.25:16443 --namespace default
 
