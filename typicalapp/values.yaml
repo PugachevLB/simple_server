@@ -143,29 +143,27 @@ autoscaling:
 
 # Additional volumes on the output Deployment definition.
 volumes: #[]
-  # - name: foo
-  #   secret:
-  #     secretName: mysecret
-  #     optional: false
-  - name: logs
-    configMap:
-      name: logs-vm-cm
-      optional: false
-  - name: configs
-    configMap:
-      name: configs-vm-cm
-      optional: false
-
+  - name: app-logs-vol
+    emptyDir: {}
+  - name: app-configs-vol
+    projected:
+      sources:
+      - configMap:
+          name: configs-vol-cm
+          items:
+            - key: some_file_1st.txt
+              path: app.conf
+            - key: some_file_3rd.txt
+              path: anotherapp.conf
+            - key: text.txt
+              path: trash.txt
 
 # Additional volumeMounts on the output Deployment definition.
 volumeMounts: #[]
-  # - name: foo
-  #   mountPath: "/etc/foo"
-  #   readOnly: true
-  - name: logs
+  - name: app-logs-vol
     mountPath: "/var/log"
     readOnly: false
-  - name: configs
+  - name: app-configs-vol
     mountPath: "/etc/app"
     readOnly: true
 
@@ -176,19 +174,19 @@ tolerations: []
 affinity: {}
 
 configMaps: #[]
-  - name: logs-vm-cm
+  - name: configs-vol-cm
     data:
       some_file_1st.txt: |-
         [some_data]
         key1 = value1
         key2 = value2
-      some_file_2nd.txt: |-
-        [some_data]
-        key1 = value1
-        key2 = value2
-  - name: configs-vm-cm
-    data:
       some_file_3rd.txt: |-
         [some_data]
         key1 = value1
         key2 = value2
+      text.txt: |-
+        "To use a ConfigMap as a file volume in Helm, you typically follow a three-step process: define the ConfigMap (often using Helm's .Files.Get to pull in external file content), declare it as a volume in your deployment, and then mount it to a specific path in your container."
+  - name: vars-env-cm
+    data:
+      ENV1: 'some_value1'
+      ENV2: 'some_value2'
