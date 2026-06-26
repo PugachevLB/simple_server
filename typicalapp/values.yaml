@@ -2,15 +2,14 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+enabled: true
+
 # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
 replicaCount: 1
 
-# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
   repository: localhost:32000/simple_server
-  # This sets the pull policy for images.
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
   tag: "1.2"
 
 # This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
@@ -54,7 +53,7 @@ service:
   # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
   type: ClusterIP
   # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
-  port: 8000
+  port: 65535
 
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
@@ -127,15 +126,17 @@ resources: {}
 livenessProbe:
   httpGet:
     path: /
-    port: 8000
+    port: 65535
   initialDelaySeconds: 15
   periodSeconds: 30
+  timeoutSeconds: 5
 readinessProbe:
   httpGet:
     path: /
-    port: 8000
+    port: 65535
   initialDelaySeconds: 15
   periodSeconds: 30
+  timeoutSeconds: 5
 
 # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 autoscaling:
@@ -179,22 +180,23 @@ affinity: {}
 
 configMaps: #[]
   - name: configs-vol-cm
+    enabled: true
+    tpl: true
     data:
-      some_file_1st.txt: |-
-        [some_data]
-        key1 = value1
-        key2 = value2
-      some_file_3rd.txt: |-
-        [some_data]
-        key1 = value1
-        key2 = value2
-      text.txt: |-
-        "To use a ConfigMap as a file volume in Helm, you typically follow a three-step process: define the ConfigMap (often using Helm's .Files.Get to pull in external file content), declare it as a volume in your deployment, and then mount it to a specific path in your container."
+      some_file_1st.txt: |
+        {{ .Files.Get "files/some_file_1st.txt" }}
+      some_file_3rd.txt: |
+        {{ tpl (.Files.Get "files/some_file_3rd.txt") (dict "Values" .Values "root" .) }}
+      text.txt: |
+        {{ .Files.Get "files/text.txt" }}
+    binaryData: {}
   - name: vars-env-cm
+    enabled: true
+    tpl: true
     data:
-      ENV1: 'some_value1'
-      ENV2: 'some_value2'
-      APP_PORT: '8000'
+      ENV1: "some_value1"
+      ENV2: "some_value2"
+      APP_PORT: "{{ .Values.service.port }}"
 
 envFrom:
   - configMapRef:

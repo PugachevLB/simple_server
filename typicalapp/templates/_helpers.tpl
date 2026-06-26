@@ -43,6 +43,22 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
+Return common labels as dict
+*/}}
+{{- define "typicalapp.labelsAsDict" -}}
+{{- $vals := default dict .values -}}
+{{- $root := .root -}}
+  {{- $result := dict
+    "helm.sh/chart" ( include "typicalapp.chart" $root )
+    "app.kubernetes.io/managed-by" $root.Release.Service
+  -}}
+  {{- if $root.Chart.AppVersion }}
+    {{- $_ := set $result "app.kubernetes.io/version" ($root.Chart.AppVersion | quote) -}}
+  {{- end }}
+  {{- $result | toYaml -}}
+{{- end }}
+
+{{/*
 Selector labels
 */}}
 {{- define "typicalapp.selectorLabels" -}}
@@ -58,5 +74,24 @@ Create the name of the service account to use
 {{- default (include "typicalapp.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
+{{- end }}
+{{- end }}
+
+{{- define "typicalapp.componentEnabled" -}}
+{{- $vals := .values -}}
+{{- if not $vals -}}
+false
+{{- else -}}
+  {{- /* default treats false as empty, so avoid it here */ -}}
+  {{- $enabled := true -}}
+  {{- if hasKey $vals "enabled" -}}
+    {{- $enabled = $vals.enabled -}}
+  {{- end -}}
+  {{- $s := lower (trim (toString $enabled)) -}}
+  {{- if or (eq $s "false") (eq $s "0") (eq $s "no") (eq $s "off") -}}
+false
+  {{- else -}}
+true
+  {{- end -}}
 {{- end }}
 {{- end }}

@@ -1,0 +1,1 @@
+"To use a ConfigMap as a file volume in Helm, you typically follow a three-step process: define the ConfigMap (often using Helm's .Files.Get to pull in external file content), declare it as a volume in your deployment, and then mount it to a specific path in your container."
