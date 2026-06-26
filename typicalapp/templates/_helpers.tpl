@@ -95,3 +95,23 @@ true
   {{- end -}}
 {{- end }}
 {{- end }}
+
+{{- define "typicalapp.componentChecksum" -}}
+{{- $resource := default "configmap" .resource -}}
+{{- $templates := dict
+    "configmap" "typicalapp.configmap"
+    "secret" "typicalapp.secret"
+-}}
+{{- $template := get $templates $resource -}}
+{{- if not $template }}
+  {{- fail (printf "unsupported resource '%s' for checksum" $resource) -}}
+{{- end }}
+{{- $render := include $template (dict
+      "root" .root
+      "name" .name
+      "values" .values
+  ) -}}
+{{- if $render }}
+{{- trimSuffix "\n" (sha256sum $render) -}}
+{{- end }}
+{{- end }}

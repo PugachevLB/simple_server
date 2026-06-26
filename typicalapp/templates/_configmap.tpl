@@ -1,7 +1,7 @@
 {{/* ============================================================================
-  include "plb-common.configmap" (dict "root" . "name" "" "values" .Values)
+  include "typicalapp.configmap" (dict "root" . "name" "" "values" .Values)
 */}}
-{{- define "plb-common.configmap" -}}
+{{- define "typicalapp.configmap" -}}
 
 {{- /* Component values scope. */ -}}
 {{- $vals := default dict .values -}}

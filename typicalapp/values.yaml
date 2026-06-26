@@ -32,7 +32,9 @@ serviceAccount:
 
 # This is for setting Kubernetes Annotations to a Pod.
 # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
-podAnnotations: {}
+podAnnotations: #{}
+  checksum/vol-cm: '{{ include "typicalapp.componentChecksum" (dict "root" . "name" "" "values" .Values "resource" "configmap") }}'
+  checksum/env-cm: '{{ include "typicalapp.componentChecksum" (dict "root" . "name" "env" "values" .Values "resource" "configmap") }}'
 # This is for setting Kubernetes Labels to a Pod.
 # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 podLabels: {}
@@ -189,7 +191,6 @@ configMaps: #[]
         {{ tpl (.Files.Get "files/some_file_3rd.txt") (dict "Values" .Values "root" .) }}
       text.txt: |
         {{ .Files.Get "files/text.txt" }}
-    binaryData: {}
   - name: vars-env-cm
     enabled: true
     tpl: true

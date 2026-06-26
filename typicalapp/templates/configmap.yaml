@@ -1,1 +1,1 @@
-{{- include "plb-common.configmap" (dict "root" . "name" "" "values" .Values) }}
+{{- include "typicalapp.configmap" (dict "root" . "name" "" "values" .Values) }}
